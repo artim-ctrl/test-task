@@ -9,6 +9,6 @@ class EmailNeedVerifyController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        return response()->json(['need verify email']);
+        return response()->json(['need verify email. check your email(logs)']);
     }
 }

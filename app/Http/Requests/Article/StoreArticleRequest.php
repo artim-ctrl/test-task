@@ -14,9 +14,9 @@ class StoreArticleRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'sometimes|required|exists:users,id',
-            'name' => 'required|min:10|max:80',
-            'article' => 'required|max:5000',
+            'user_id' => 'sometimes|required|int|exists:users,id',
+            'name' => 'required|string|min:10|max:80',
+            'article' => 'required|string|max:5000',
         ];
     }
 }

@@ -57,7 +57,7 @@ class UserController extends Controller
     {
         $requestData = $request->safe();
 
-        $requestData->merge(['password' => Hash::make($request->get('password'))]);
+        $requestData = $requestData->merge(['password' => Hash::make($request->get('password'))]);
         if (! Auth::user()->isAdmin()) {
             $requestData = $requestData->merge(['role' => 'user']);
         }
