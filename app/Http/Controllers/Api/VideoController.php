@@ -52,7 +52,7 @@ class VideoController extends Controller
     {
         $requestData = $request->safe();
         if (! $request->has('user_id') || ! Auth::user()->isAdmin()) {
-            $requestData = $requestData->merge(['user_id' => Auth::user()->id]);
+            $requestData = $requestData->merge(['user_id' => auth()->id()]);
         }
 
         $video = Video::create($requestData->toArray());
@@ -86,13 +86,13 @@ class VideoController extends Controller
      */
     public function update(UpdateVideoRequest $request, Video $video): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $video->user_id !== Auth::user()->id) {
+        if (! Auth::user()->isAdmin() && $video->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
         $requestData = $request->safe();
         if (! Auth::user()->isAdmin() && $request->has('user_id')) {
-            $requestData = $requestData->merge(['user_id' => Auth::user()->id]);
+            $requestData = $requestData->merge(['user_id' => auth()->id()]);
         }
 
         $video->update($requestData->toArray());
@@ -111,7 +111,7 @@ class VideoController extends Controller
      */
     public function destroy(Video $video): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $video->user_id !== Auth::user()->id) {
+        if (! Auth::user()->isAdmin() && $video->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
         }
 

@@ -60,7 +60,7 @@ class CommentController extends Controller
     {
         $requestData = $request->safe();
         if (! $request->has('user_id') || ! Auth::user()->isAdmin()) {
-            $requestData = $requestData->merge(['user_id' => Auth::user()->id]);
+            $requestData = $requestData->merge(['user_id' => auth()->id()]);
         }
 
         $comment = Comment::create($requestData->toArray());
@@ -94,13 +94,13 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request, Comment $comment): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $comment->user_id !== Auth::user()->id) {
+        if (! Auth::user()->isAdmin() && $comment->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
         $requestData = $request->safe();
         if (! Auth::user()->isAdmin() && $request->has('user_id')) {
-            $requestData = $requestData->merge(['user_id' => Auth::user()->id]);
+            $requestData = $requestData->merge(['user_id' => auth()->id()]);
         }
 
         $comment->update($requestData->toArray());
@@ -119,7 +119,7 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $comment->user_id !== Auth::user()->id) {
+        if (! Auth::user()->isAdmin() && $comment->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
         }
 

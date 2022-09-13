@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Traits;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 
 trait ResourceTrait
 {
@@ -15,10 +14,5 @@ trait ResourceTrait
             'last_page' => $paginate->lastPage(),
             'total' => $paginate->total(),
         ];
-    }
-
-    public function checkOwnerOrAdmin($entity): bool
-    {
-        return Auth::user()->isAdmin() || $entity->user_id === Auth::user()->id;
     }
 }

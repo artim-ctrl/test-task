@@ -56,7 +56,7 @@ class ArticleController extends Controller
     {
         $requestData = $request->safe();
         if (! $request->has('user_id') || ! Auth::user()->isAdmin()) {
-            $requestData = $requestData->merge(['user_id' => Auth::user()->id]);
+            $requestData = $requestData->merge(['user_id' => auth()->id()]);
         }
 
         $article = Article::create($requestData->toArray());
@@ -90,13 +90,13 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticleRequest $request, Article $article): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $article->user_id !== Auth::user()->id) {
+        if (! Auth::user()->isAdmin() && $article->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
         $requestData = $request->safe();
         if (! Auth::user()->isAdmin() && $request->has('user_id')) {
-            $requestData = $requestData->merge(['user_id' => Auth::user()->id]);
+            $requestData = $requestData->merge(['user_id' => auth()->id()]);
         }
 
         $article->update($requestData->toArray());
@@ -115,7 +115,7 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $article->user_id !== Auth::user()->id) {
+        if (! Auth::user()->isAdmin() && $article->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
