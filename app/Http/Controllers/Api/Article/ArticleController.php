@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Article;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\ResourceTrait;
 use App\Http\Requests\Article\IndexArticleRequest;
 use App\Http\Requests\Article\StoreArticleRequest;
 use App\Http\Requests\Article\UpdateArticleRequest;
+use App\Http\Resources\Article\ArticleCollection;
+use App\Http\Resources\Article\ArticleResource;
 use App\Models\Article;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -14,15 +15,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ArticleController extends Controller
 {
-    use ResourceTrait;
-
     /**
      * Display a listing of the resource.
      *
      * @param IndexArticleRequest $request
-     * @return JsonResponse
+     * @return ArticleCollection
      */
-    public function index(IndexArticleRequest $request): JsonResponse
+    public function index(IndexArticleRequest $request): ArticleCollection
     {
         $query = Article::query();
         if ($request->has('search.user_id')) {
@@ -39,20 +38,16 @@ class ArticleController extends Controller
 
         $paginate = $query->paginate($request->input('limit'));
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $paginate->all(),
-            'meta' => $this->getPaginationInfo($paginate),
-        ]);
+        return ArticleCollection::make($paginate);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param StoreArticleRequest $request
-     * @return JsonResponse
+     * @return ArticleResource
      */
-    public function store(StoreArticleRequest $request): JsonResponse
+    public function store(StoreArticleRequest $request): ArticleResource
     {
         $requestData = $request->safe();
         if (! $request->has('user_id') || ! Auth::user()->isAdmin()) {
@@ -61,24 +56,18 @@ class ArticleController extends Controller
 
         $article = Article::create($requestData->toArray());
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $article,
-        ]);
+        return ArticleResource::make($article);
     }
 
     /**
      * Display the specified resource.
      *
      * @param Article $article
-     * @return JsonResponse
+     * @return ArticleResource
      */
-    public function show(Article $article): JsonResponse
+    public function show(Article $article): ArticleResource
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => $article,
-        ]);
+        return ArticleResource::make($article);
     }
 
     /**
@@ -86,9 +75,9 @@ class ArticleController extends Controller
      *
      * @param UpdateArticleRequest $request
      * @param Article $article
-     * @return JsonResponse
+     * @return ArticleResource
      */
-    public function update(UpdateArticleRequest $request, Article $article): JsonResponse
+    public function update(UpdateArticleRequest $request, Article $article): ArticleResource
     {
         if (! Auth::user()->isAdmin() && $article->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
@@ -101,10 +90,7 @@ class ArticleController extends Controller
 
         $article->update($requestData->toArray());
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $article,
-        ]);
+        return ArticleResource::make($article);
     }
 
     /**
@@ -121,8 +107,6 @@ class ArticleController extends Controller
 
         $article->delete();
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return response()->json();
     }
 }

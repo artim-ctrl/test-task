@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Comment;
 
-use App\Http\Requests\BaseRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class IndexCommentRequest extends BaseRequest
+class IndexCommentRequest extends FormRequest
 {
     public function rules(): array
     {

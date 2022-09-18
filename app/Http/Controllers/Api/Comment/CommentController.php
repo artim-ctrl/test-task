@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Comment;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\ResourceTrait;
 use App\Http\Requests\Comment\IndexCommentRequest;
 use App\Http\Requests\Comment\StoreCommentRequest;
 use App\Http\Requests\Comment\UpdateCommentRequest;
+use App\Http\Resources\Comment\CommentCollection;
+use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -14,15 +15,13 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    use ResourceTrait;
-
     /**
      * Display a listing of the resource.
      *
      * @param IndexCommentRequest $request
-     * @return JsonResponse
+     * @return CommentCollection
      */
-    public function index(IndexCommentRequest $request): JsonResponse
+    public function index(IndexCommentRequest $request): CommentCollection
     {
         $query = Comment::query();
         if ($request->has('search.user_id')) {
@@ -43,20 +42,16 @@ class CommentController extends Controller
 
         $paginate = $query->paginate($request->input('limit'));
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $paginate->all(),
-            'meta' => $this->getPaginationInfo($paginate),
-        ]);
+        return CommentCollection::make($paginate);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param StoreCommentRequest $request
-     * @return JsonResponse
+     * @return CommentResource
      */
-    public function store(StoreCommentRequest $request): JsonResponse
+    public function store(StoreCommentRequest $request): CommentResource
     {
         $requestData = $request->safe();
         if (! $request->has('user_id') || ! Auth::user()->isAdmin()) {
@@ -65,24 +60,18 @@ class CommentController extends Controller
 
         $comment = Comment::create($requestData->toArray());
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $comment,
-        ]);
+        return CommentResource::make($comment);
     }
 
     /**
      * Display the specified resource.
      *
      * @param Comment $comment
-     * @return JsonResponse
+     * @return CommentResource
      */
-    public function show(Comment $comment): JsonResponse
+    public function show(Comment $comment): CommentResource
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => $comment,
-        ]);
+        return CommentResource::make($comment);
     }
 
     /**
@@ -90,9 +79,9 @@ class CommentController extends Controller
      *
      * @param UpdateCommentRequest $request
      * @param Comment $comment
-     * @return JsonResponse
+     * @return CommentResource
      */
-    public function update(UpdateCommentRequest $request, Comment $comment): JsonResponse
+    public function update(UpdateCommentRequest $request, Comment $comment): CommentResource
     {
         if (! Auth::user()->isAdmin() && $comment->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
@@ -105,10 +94,7 @@ class CommentController extends Controller
 
         $comment->update($requestData->toArray());
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $comment,
-        ]);
+        return CommentResource::make($comment);
     }
 
     /**
@@ -125,8 +111,6 @@ class CommentController extends Controller
 
         $comment->delete();
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return response()->json();
     }
 }

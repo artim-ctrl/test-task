@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Video;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\ResourceTrait;
 use App\Http\Requests\Video\IndexVideoRequest;
 use App\Http\Requests\Video\StoreVideoRequest;
 use App\Http\Requests\Video\UpdateVideoRequest;
+use App\Http\Resources\Video\VideoCollection;
+use App\Http\Resources\Video\VideoResource;
 use App\Models\Video;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -14,15 +15,13 @@ use Illuminate\Support\Facades\Auth;
 
 class VideoController extends Controller
 {
-    use ResourceTrait;
-
     /**
      * Display a listing of the resource.
      *
      * @param IndexVideoRequest $request
-     * @return JsonResponse
+     * @return VideoCollection
      */
-    public function index(IndexVideoRequest $request): JsonResponse
+    public function index(IndexVideoRequest $request): VideoCollection
     {
         $query = Video::query();
         if ($request->has('search.user_id')) {
@@ -35,20 +34,16 @@ class VideoController extends Controller
 
         $paginate = $query->paginate($request->input('limit'));
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $paginate->all(),
-            'meta' => $this->getPaginationInfo($paginate),
-        ]);
+        return VideoCollection::make($paginate);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param StoreVideoRequest $request
-     * @return JsonResponse
+     * @return VideoResource
      */
-    public function store(StoreVideoRequest $request): JsonResponse
+    public function store(StoreVideoRequest $request): VideoResource
     {
         $requestData = $request->safe();
         if (! $request->has('user_id') || ! Auth::user()->isAdmin()) {
@@ -57,24 +52,18 @@ class VideoController extends Controller
 
         $video = Video::create($requestData->toArray());
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $video,
-        ]);
+        return VideoResource::make($video);
     }
 
     /**
      * Display the specified resource.
      *
      * @param Video $video
-     * @return JsonResponse
+     * @return VideoResource
      */
-    public function show(Video $video): JsonResponse
+    public function show(Video $video): VideoResource
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => $video,
-        ]);
+        return VideoResource::make($video);
     }
 
     /**
@@ -82,9 +71,9 @@ class VideoController extends Controller
      *
      * @param UpdateVideoRequest $request
      * @param Video $video
-     * @return JsonResponse
+     * @return VideoResource
      */
-    public function update(UpdateVideoRequest $request, Video $video): JsonResponse
+    public function update(UpdateVideoRequest $request, Video $video): VideoResource
     {
         if (! Auth::user()->isAdmin() && $video->user_id !== auth()->id()) {
             abort(Response::HTTP_FORBIDDEN);
@@ -97,10 +86,7 @@ class VideoController extends Controller
 
         $video->update($requestData->toArray());
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $video,
-        ]);
+        return VideoResource::make($video);
     }
 
     /**
@@ -117,8 +103,6 @@ class VideoController extends Controller
 
         $video->delete();
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return response()->json();
     }
 }

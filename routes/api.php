@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\Api\ArticleController;
-use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\VideoController;
+use App\Http\Controllers\Api\Article\ArticleController;
+use App\Http\Controllers\Api\Comment\CommentController;
+use App\Http\Controllers\Api\User\UserController;
+use App\Http\Controllers\Api\Video\VideoController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Email\EmailNeedVerifyController;
 use App\Http\Controllers\Email\EmailVerifyController;

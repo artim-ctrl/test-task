@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Article;
 
-use App\Http\Requests\BaseRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class StoreArticleRequest extends BaseRequest
+class StoreArticleRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.

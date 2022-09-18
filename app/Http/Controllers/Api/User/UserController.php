@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\ResourceTrait;
 use App\Http\Requests\User\IndexUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\User\UserCollection;
+use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
@@ -15,15 +16,13 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    use ResourceTrait;
-
     /**
      * Display a listing of the resource.
      *
      * @param IndexUserRequest $request
-     * @return JsonResponse
+     * @return UserCollection
      */
-    public function index(IndexUserRequest $request): JsonResponse
+    public function index(IndexUserRequest $request): UserCollection
     {
         $query = User::query();
         if ($request->has('search.name')) {
@@ -40,20 +39,16 @@ class UserController extends Controller
 
         $paginate = $query->paginate($request->input('limit'));
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $paginate->all(),
-            'meta' => $this->getPaginationInfo($paginate),
-        ]);
+        return UserCollection::make($paginate);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param StoreUserRequest $request
-     * @return JsonResponse
+     * @return UserResource
      */
-    public function store(StoreUserRequest $request): JsonResponse
+    public function store(StoreUserRequest $request): UserResource
     {
         $requestData = $request->safe();
 
@@ -64,13 +59,11 @@ class UserController extends Controller
 
         $user = User::create($requestData->toArray());
 
-        $requestData = $requestData->merge(['token' => $user->createToken('MyApp')->plainTextToken]);
-
         event(new Registered($user));
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $requestData->toArray(),
+        // TODO: хз как отправлять токен правильно
+        return UserResource::make($user)->additional([
+            'token' => $user->createToken('MyApp')->plainTextToken,
         ]);
     }
 
@@ -78,14 +71,11 @@ class UserController extends Controller
      * Display the specified resource.
      *
      * @param User $user
-     * @return JsonResponse
+     * @return UserResource
      */
-    public function show(User $user): JsonResponse
+    public function show(User $user): UserResource
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => $user,
-        ]);
+        return UserResource::make($user);
     }
 
     /**
@@ -93,9 +83,9 @@ class UserController extends Controller
      *
      * @param UpdateUserRequest $request
      * @param User $user
-     * @return JsonResponse
+     * @return UserResource
      */
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    public function update(UpdateUserRequest $request, User $user): UserResource
     {
         $requestData = $request->safe();
 
@@ -105,10 +95,7 @@ class UserController extends Controller
 
         $user->update($requestData->toArray());
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $user,
-        ]);
+        return UserResource::make($user);
     }
 
     /**
@@ -121,8 +108,6 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return response()->json();
     }
 }

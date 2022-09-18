@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Video;
 
-use App\Http\Requests\BaseRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class IndexVideoRequest extends BaseRequest
+class IndexVideoRequest extends FormRequest
 {
     public function rules(): array
     {
