@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Comment;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\ResourceTrait;
 use App\Http\Requests\Comment\IndexCommentRequest;
 use App\Http\Requests\Comment\StoreCommentRequest;
 use App\Http\Requests\Comment\UpdateCommentRequest;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    use ResourceTrait;
+
     /**
      * Display a listing of the resource.
      *
@@ -83,7 +86,7 @@ class CommentController extends Controller
      */
     public function update(UpdateCommentRequest $request, Comment $comment): CommentResource
     {
-        if (! Auth::user()->isAdmin() && $comment->user_id !== auth()->id()) {
+        if (! $this->canManage($comment)) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
@@ -105,7 +108,7 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $comment->user_id !== auth()->id()) {
+        if (! $this->canManage($comment)) {
             abort(Response::HTTP_FORBIDDEN);
         }
 

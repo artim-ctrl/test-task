@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Article;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\ResourceTrait;
 use App\Http\Requests\Article\IndexArticleRequest;
 use App\Http\Requests\Article\StoreArticleRequest;
 use App\Http\Requests\Article\UpdateArticleRequest;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 
 class ArticleController extends Controller
 {
+    use ResourceTrait;
+
     /**
      * Display a listing of the resource.
      *
@@ -79,7 +82,7 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticleRequest $request, Article $article): ArticleResource
     {
-        if (! Auth::user()->isAdmin() && $article->user_id !== auth()->id()) {
+        if (! $this->canManage($article)) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
@@ -101,7 +104,7 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $article->user_id !== auth()->id()) {
+        if (! $this->canManage($article)) {
             abort(Response::HTTP_FORBIDDEN);
         }
 

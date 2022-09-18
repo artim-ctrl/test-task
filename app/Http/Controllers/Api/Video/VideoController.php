@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Video;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\ResourceTrait;
 use App\Http\Requests\Video\IndexVideoRequest;
 use App\Http\Requests\Video\StoreVideoRequest;
 use App\Http\Requests\Video\UpdateVideoRequest;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 
 class VideoController extends Controller
 {
+    use ResourceTrait;
+
     /**
      * Display a listing of the resource.
      *
@@ -75,7 +78,7 @@ class VideoController extends Controller
      */
     public function update(UpdateVideoRequest $request, Video $video): VideoResource
     {
-        if (! Auth::user()->isAdmin() && $video->user_id !== auth()->id()) {
+        if (! $this->canManage($video)) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
@@ -97,7 +100,7 @@ class VideoController extends Controller
      */
     public function destroy(Video $video): JsonResponse
     {
-        if (! Auth::user()->isAdmin() && $video->user_id !== auth()->id()) {
+        if (! $this->canManage($video)) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
